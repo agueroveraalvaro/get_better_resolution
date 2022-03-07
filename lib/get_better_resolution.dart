@@ -4,6 +4,7 @@ library get_better_resolution;
 NanoBanco Mobile App - CryptoMarket
 
 File edited by: Álvaro Agüero - 4/2/2022
+File edited by: Álvaro Agüero - 7/3/2022 - Improve performance
 */
 
 import 'dart:convert';
@@ -15,6 +16,7 @@ import 'package:flutter/foundation.dart';
 class GetBetterResolution {
 
   static Map<String, MultiWidthHeightImage> imagesMap = {};
+  static late String folderInitRoute;
 
   Future<void> initialize({
     required String folderInitRoute
@@ -25,6 +27,7 @@ class GetBetterResolution {
     }
 
     imagesMap = {};
+    GetBetterResolution.folderInitRoute = folderInitRoute;
 
     final _manifestContent = await rootBundle.loadString('AssetManifest.json');
     final Map<String, dynamic> _manifestMap = json.decode(_manifestContent);
@@ -40,16 +43,15 @@ class GetBetterResolution {
       final _originalImageName = _originalImageNameArray[_originalImageNameArray.length-1];
 
       final _originalImageNameDataArray = _originalImageName.split('.');
-      final _originalImageNameExtracted = _originalImageNameDataArray[1];
-      final _originalReferencePath = folderInitRoute + _originalImageNameExtracted;
+      final _originalImageNameExtracted = _originalImageNameDataArray[1];//home_icon_inactive
 
-      if(imagesMap.containsKey(_originalReferencePath)) {
+      if(imagesMap.containsKey(_originalImageNameExtracted)) {
 
         final _imageNameArray = originalElement.split('/');
         final _imageName = _imageNameArray[_imageNameArray.length-1];
 
         final _imageNameDataArray = _imageName.split('.');
-        final imageNameExtracted = _imageNameDataArray[1];
+        final imageNameExtracted = _imageNameDataArray[1];//home_icon_inactive
 
         if(_originalImageNameExtracted == imageNameExtracted) {
           final _imageSizeExtracted = _imageNameDataArray[0];
@@ -57,9 +59,9 @@ class GetBetterResolution {
           final _width = int.tryParse(_sizeImageExtractedArray[0]) ?? 100;
           final _height = int.tryParse(_sizeImageExtractedArray[1]) ?? 100;
 
-          imagesMap[_originalReferencePath]!.widths.add(_width);
-          imagesMap[_originalReferencePath]!.heights.add(_height);
-          imagesMap[_originalReferencePath]!.paths.add(originalElement);
+          imagesMap[_originalImageNameExtracted]!.widths.add(_width);
+          imagesMap[_originalImageNameExtracted]!.heights.add(_height);
+          imagesMap[_originalImageNameExtracted]!.paths.add(originalElement);
         }
       } else {
         final _originalImageSizeExtracted = _originalImageNameDataArray[0];
@@ -67,7 +69,7 @@ class GetBetterResolution {
         final _originalWidth = int.tryParse(_sizeImageExtractedArray[0]) ?? 100;
         final _originalHeight = int.tryParse(_sizeImageExtractedArray[1]) ?? 100;
 
-        imagesMap[_originalReferencePath] = MultiWidthHeightImage(
+        imagesMap[_originalImageNameExtracted] = MultiWidthHeightImage(
             widths: [_originalWidth],
             heights: [_originalHeight],
             paths: [originalElement]
@@ -104,9 +106,12 @@ class GetBetterResolution {
     });
   }
 
+  /*
+  * Method to get the best resolution by [referenceImageName] ex: 'home_icon_active'
+  * */
   String get({
     required BuildContext context,
-    required String referencePath,
+    required String referenceImageName,
     int? width,
     int? height
   }) {
@@ -117,12 +122,11 @@ class GetBetterResolution {
         if (kDebugMode) {
           print('key $key - value $value');
         }
-        if(key == 'assets/images/icons/resolution_icons/balance') {
-          for(int b=0; b<value.paths.length; b++) {
-            if (kDebugMode) {
-              print('heights $b - ' + value.heights[b].toString()
-                + '  widths $b - ' + value.widths[b].toString());
-            }
+        for(int b=0; b<value.paths.length; b++) {
+          if (kDebugMode) {
+            print('heights $b - ' + value.heights[b].toString()
+                + '  widths $b - ' + value.widths[b].toString()
+                + '  paths $b - ' + value.paths[b].toString());
           }
         }
       });
@@ -132,9 +136,9 @@ class GetBetterResolution {
       return 'Debe venir al menos un valor válido para width o height.';
     }
 
-    if(imagesMap.containsKey(referencePath)) {
+    if(imagesMap.containsKey(referenceImageName)) {
 
-      final MultiWidthHeightImage multiWidthHeightImage = imagesMap[referencePath]!;
+      final MultiWidthHeightImage multiWidthHeightImage = imagesMap[referenceImageName]!;
 
       //Work with [width]
       if(width != null) {
@@ -165,13 +169,10 @@ class GetBetterResolution {
 
         for(int b=0; b<positionAndDifferenceList.length; b++) {
           for(int c=0; c<positionAndDifferenceList.length; c++) {
-
             if(positionAndDifferenceList[c][1] > positionAndDifferenceList[b][1]) {
-
               final positionAndDifferenceAux = positionAndDifferenceList[b];
               positionAndDifferenceList[b] = positionAndDifferenceList[c];
               positionAndDifferenceList[c] = positionAndDifferenceAux;
-
             }
           }
         }
