@@ -22,7 +22,7 @@ class GetBetterResolution {
     required String folderInitRoute
   }) async {
     if (kDebugMode) {
-      print('<< GetBetterResolution ---- initialize >>');
+      print('<< GetBetterResolution ---- initialize() >>');
       print(folderInitRoute);
     }
 
@@ -116,7 +116,7 @@ class GetBetterResolution {
     int? height
   }) {
 
-    if (kDebugMode) {
+    /*if (kDebugMode) {
       print('===================== imagesMap get() ======================');
       imagesMap.forEach((key, value) {
         if (kDebugMode) {
@@ -130,7 +130,7 @@ class GetBetterResolution {
           }
         }
       });
-    }
+    }*/
 
     if(width == null && height == null) {
       return 'Debe venir al menos un valor válido para width o height.';
