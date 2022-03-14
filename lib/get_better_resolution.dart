@@ -112,12 +112,12 @@ class GetBetterResolution {
   /*
   * Method to get the best resolution by [referenceImageName] ex: 'home_icon_active'
   * */
-  String get({
+  Future<String> get({
     required BuildContext context,
     required String referenceImageName,
     int? width,
     int? height
-  }) {
+  }) async {
 
     /*if (kDebugMode) {
       print('===================== imagesMap get() ======================');
