@@ -18,6 +18,9 @@ class GetBetterResolution {
   static Map<String, MultiWidthHeightImage> imagesMap = {};
   static late String folderInitRoute;
 
+  /*
+  * Method to initialize the library and map the different assets
+  * */
   Future<void> initialize({
     required String folderInitRoute
   }) async {
@@ -235,7 +238,21 @@ class GetBetterResolution {
         return multiWidthHeightImage.paths[positionAndDifferenceList[0][0]];
       }
     } else {
-      return 'El path no está con el formato correcto.';
+      return 'El path no está con el formato correcto o no existe.';
+    }
+  }
+
+  /*
+  * Method to get a quick path by [referenceImageName] ex: 'home_icon_active'
+  * */
+  String getQuick({
+    required String referenceImageName
+  }) {
+    if(imagesMap.containsKey(referenceImageName)) {
+      final MultiWidthHeightImage multiWidthHeightImage = imagesMap[referenceImageName]!;
+      return multiWidthHeightImage.paths[0];
+    } else {
+      return 'El path no está con el formato correcto o no existe.';
     }
   }
 }
