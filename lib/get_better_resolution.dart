@@ -4,7 +4,6 @@ library get_better_resolution;
 NanoBanco Mobile App - CryptoMarket
 
 File edited by: Álvaro Agüero - 4/2/2022
-File edited by: Álvaro Agüero - 7/3/2022 - Improve performance
 */
 
 import 'dart:convert';
@@ -112,12 +111,12 @@ class GetBetterResolution {
   /*
   * Method to get the best resolution by [referenceImageName] ex: 'home_icon_active'
   * */
-  Future<String> get({
-    required BuildContext context,
-    required String referenceImageName,
-    int? width,
-    int? height
-  }) async {
+  String get({
+    required final BuildContext context,
+    required final String referenceImageName,
+    final double? width,
+    final double? height
+  }) {
 
     /*if (kDebugMode) {
       print('===================== imagesMap get() ======================');
@@ -243,7 +242,7 @@ class GetBetterResolution {
   }
 
   /*
-  * Method to get a quick path by [referenceImageName] ex: 'home_icon_active'
+  * Method to get a quick path (lowest resolution) by [referenceImageName] ex: 'home_icon_active'
   * */
   String getQuick({
     required String referenceImageName
@@ -251,139 +250,6 @@ class GetBetterResolution {
     if(imagesMap.containsKey(referenceImageName)) {
       final MultiWidthHeightImage multiWidthHeightImage = imagesMap[referenceImageName]!;
       return multiWidthHeightImage.paths[0];
-    } else {
-      return 'El path no está con el formato correcto o no existe.';
-    }
-  }
-
-  /*
-  * Method to get the best resolution by [referenceImageName] ex: 'home_icon_active'
-  * */
-  String getSync({
-    required BuildContext context,
-    required String referenceImageName,
-    int? width,
-    int? height
-  }) {
-
-    /*if (kDebugMode) {
-      print('===================== imagesMap get() ======================');
-      imagesMap.forEach((key, value) {
-        if (kDebugMode) {
-          print('key $key - value $value');
-        }
-        for(int b=0; b<value.paths.length; b++) {
-          if (kDebugMode) {
-            print('heights $b - ' + value.heights[b].toString()
-                + '  widths $b - ' + value.widths[b].toString()
-                + '  paths $b - ' + value.paths[b].toString());
-          }
-        }
-      });
-    }*/
-
-    if(width == null && height == null) {
-      return 'Debe venir al menos un valor válido para width o height.';
-    }
-
-    if(imagesMap.containsKey(referenceImageName)) {
-
-      final MultiWidthHeightImage multiWidthHeightImage = imagesMap[referenceImageName]!;
-
-      //Work with [width]
-      if(width != null) {
-
-        final baseWidth = multiWidthHeightImage.widths[0];
-        final devicePixelRatio = MediaQuery.of(context).devicePixelRatio;
-        final widthCalculated = (baseWidth * devicePixelRatio * (width / baseWidth)).round();
-
-        List<List<int>> positionAndDifferenceList = [];
-
-        if(widthCalculated < baseWidth) {
-          return multiWidthHeightImage.paths[0];
-        }
-
-        for(int b=0; b<multiWidthHeightImage.paths.length; b++) {
-
-          if(widthCalculated == multiWidthHeightImage.widths[b]) {
-            return multiWidthHeightImage.paths[b];
-          }
-
-          positionAndDifferenceList.add(
-              [
-                b,//[0] position
-                (widthCalculated - multiWidthHeightImage.widths[b]).round().abs() //[1] difference with widthCalculated, here is rounded and positive
-              ]
-          );
-        }
-
-        for(int b=0; b<positionAndDifferenceList.length; b++) {
-          for(int c=0; c<positionAndDifferenceList.length; c++) {
-            if(positionAndDifferenceList[c][1] > positionAndDifferenceList[b][1]) {
-              final positionAndDifferenceAux = positionAndDifferenceList[b];
-              positionAndDifferenceList[b] = positionAndDifferenceList[c];
-              positionAndDifferenceList[c] = positionAndDifferenceAux;
-            }
-          }
-        }
-
-        if(multiWidthHeightImage.paths.length > 1) {
-          //The nearest is the last
-          if(positionAndDifferenceList[0][0] == multiWidthHeightImage.paths.length-1) {
-            return multiWidthHeightImage.paths[positionAndDifferenceList[0][0]];
-          } else
-          if(widthCalculated > multiWidthHeightImage.widths[positionAndDifferenceList[0][0]]) {
-            return multiWidthHeightImage.paths[positionAndDifferenceList[1][0]];
-          }
-        }
-        return multiWidthHeightImage.paths[positionAndDifferenceList[0][0]];
-      } else { //Work with [height]
-
-        final baseHeight = multiWidthHeightImage.heights[0];
-        final devicePixelRatio = MediaQuery.of(context).devicePixelRatio;
-        final heightCalculated = (baseHeight * devicePixelRatio * (height! / baseHeight)).round();
-
-        List<List<int>> positionAndDifferenceList = [];
-
-        if(heightCalculated < baseHeight) {
-          return multiWidthHeightImage.paths[0];
-        }
-
-        for(int b=0; b<multiWidthHeightImage.paths.length; b++) {
-
-          if(heightCalculated == multiWidthHeightImage.heights[b]) {
-            return multiWidthHeightImage.paths[b];
-          }
-
-          positionAndDifferenceList.add(
-              [
-                b,//[0] position
-                (heightCalculated - multiWidthHeightImage.heights[b]).round().abs() //[1] difference with heightCalculated, here is rounded and positive
-              ]
-          );
-        }
-
-        for(int b=0; b<positionAndDifferenceList.length; b++) {
-          for(int c=0; c<positionAndDifferenceList.length; c++) {
-            if(positionAndDifferenceList[c][1] > positionAndDifferenceList[b][1]) {
-              final positionAndDifferenceAux = positionAndDifferenceList[b];
-              positionAndDifferenceList[b] = positionAndDifferenceList[c];
-              positionAndDifferenceList[c] = positionAndDifferenceAux;
-            }
-          }
-        }
-
-        if(multiWidthHeightImage.paths.length > 1) {
-          //The nearest is the last
-          if(positionAndDifferenceList[0][0] == multiWidthHeightImage.paths.length-1) {
-            return multiWidthHeightImage.paths[positionAndDifferenceList[0][0]];
-          } else
-          if(heightCalculated > multiWidthHeightImage.heights[positionAndDifferenceList[0][0]]) {
-            return multiWidthHeightImage.paths[positionAndDifferenceList[1][0]];
-          }
-        }
-        return multiWidthHeightImage.paths[positionAndDifferenceList[0][0]];
-      }
     } else {
       return 'El path no está con el formato correcto o no existe.';
     }
